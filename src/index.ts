@@ -128,6 +128,3 @@ app.use(router.routes()).use(router.allowedMethods())
 app.listen(port, () => {
     console.info(`Koa app started and listening to port ${port}! 🚀`);
 })
-
-//state=svkgXCJ32la-Cp2jiXPi6.Dx7C.n5ha8&
-//code=V0ttN0JaU0FsYUJoM1pLek1aZlZ4SnQ4cy14SzJxN3lJX2dJaktZczJhdzA4OjE2NjA3NDQ1NzA3MzY6MToxOmFjOjE
