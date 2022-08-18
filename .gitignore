@@ -105,3 +105,6 @@ dist
 
 #todo+ vscode extension todolist files
 .todo
+
+#where the tokens and stuff are stored, wouldnt want to commit this
+data.json
