@@ -54,11 +54,13 @@ router.get("/callback", async (ctx, next) => {
     if (!storedData.codeVerifier || !storedData.state || !state || !code) {
         ctx.status = 400;
         ctx.body = { message: "Bad request." }
+        return;
     }
 
     if (state !== storedData.state) {
         ctx.status = 400;
         ctx.body = { message: "Bad request." }
+        return;
     }
 
     const { client: loggedClient, accessToken, refreshToken } = await twitterClient.loginWithOAuth2({
@@ -76,6 +78,45 @@ router.get("/callback", async (ctx, next) => {
         message: "The params have been saved."
     }
 
+    await next();
+})
+
+router.get("/tweet", async (ctx, next) => {
+    const text = String(ctx.query.message)
+
+    if (!text) {
+        ctx.status = 400
+        ctx.body = { message: "Bad request. You need to have a query parameter called 'message' that's less than 280 characters long in the link." }
+        return;
+    }
+    if (text!.length > 280) {
+        ctx.status = 400
+        ctx.body = { message: "Bad request. Your message is too long." }
+        return;
+    }
+
+    const storedData = await JSON.parse(fs.readFileSync("data.json", "utf-8"))
+
+    if (!storedData.refreshToken) {
+        ctx.status = 400
+        ctx.body = { message: "Bad request. The refresh token doesn't exist." }
+        return;
+    }
+
+    const {
+        client: refreshedClient,
+        accessToken,
+        refreshToken: newRefreshToken,
+    } = await twitterClient.refreshOAuth2Token(storedData.refreshToken);
+
+    const data = { codeVerifier: storedData.codeVerifier, accessToken, refreshToken: newRefreshToken, state: storedData.state }
+
+    fs.writeFileSync("data.json", JSON.stringify(data));
+
+    await refreshedClient.v2.tweet(text)
+
+    ctx.status = 200;
+    ctx.body = { message: `The text "${text}" has been tweeted.` }
     await next();
 })
 
