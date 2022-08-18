@@ -35,6 +35,17 @@ router.get("/oauth", async (ctx, next) => {
     await next();
 })
 
+router.get("/callback", async (ctx, next) => {
+    console.log(ctx.query.state, ctx.query.code);
+
+    ctx.status = 200;
+    ctx.body = {
+        message: "The params have been saved."
+    }
+
+    await next();
+})
+
 app.use(errorHandler())
 app.use(bodyParser())
 app.use(logger())
