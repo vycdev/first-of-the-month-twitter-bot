@@ -32,7 +32,7 @@ router.get("/", async (ctx, next) => {
 
 
 router.get("/oauth", async (ctx, next) => {
-    const { url, codeVerifier, state } = twitterClient.generateOAuth2AuthLink(callbackURL, { scope: ['tweet.write', 'offline.access'] })
+    const { url, codeVerifier, state } = twitterClient.generateOAuth2AuthLink(callbackURL, { scope: ['tweet.write', 'tweet.read', 'users.read', 'offline.access'] })
 
     console.log(url, codeVerifier, state);
 
@@ -82,7 +82,7 @@ router.get("/callback", async (ctx, next) => {
 })
 
 router.get("/tweet", async (ctx, next) => {
-    const text = String(ctx.query.message)
+    const text = ctx.query.message
 
     if (!text) {
         ctx.status = 400
@@ -113,7 +113,7 @@ router.get("/tweet", async (ctx, next) => {
 
     fs.writeFileSync("data.json", JSON.stringify(data));
 
-    await refreshedClient.v2.tweet(text)
+    await refreshedClient.v2.tweet(String(text))
 
     ctx.status = 200;
     ctx.body = { message: `The text "${text}" has been tweeted.` }
